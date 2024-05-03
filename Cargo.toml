@@ -9,4 +9,8 @@ edition = "2021"
 name = "ex_diatomic_mw"
 path = "examples/ex_diatomic_mw.rs"
 
+[[example]]
+name = "line_shape_lorentz"
+path = "examples/line_shape_lorentz.rs"
+
 [dependencies]

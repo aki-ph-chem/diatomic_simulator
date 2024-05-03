@@ -1,3 +1,3 @@
 /target
-test_0.csv
+*.csv
 .ipynb_checkpoints
