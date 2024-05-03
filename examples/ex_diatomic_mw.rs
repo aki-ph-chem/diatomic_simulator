@@ -1,21 +1,6 @@
 use diatomic_simulator::microwave::Population;
+use diatomic_simulator::utl::{convolute_lorentz, out_csv, LineShape};
 use std::error::Error;
-use std::fs::File;
-use std::io::Write;
-
-fn out_csv(x_data: &Vec<f64>, y_data: &Vec<f64>, path_to_file: &str) -> Result<(), Box<dyn Error>> {
-    if x_data.len() != y_data.len() {
-        panic!("Error: lenght of two vectors is not equal");
-    }
-
-    let mut file = File::create(path_to_file)?;
-
-    for (x, y) in x_data.iter().zip(y_data.iter()) {
-        writeln!(file, "{x}, {y}")?;
-    }
-
-    Ok(())
-}
 
 fn main() -> Result<(), Box<dyn Error>> {
     let argv = std::env::args().collect::<Vec<String>>();
@@ -31,10 +16,19 @@ fn main() -> Result<(), Box<dyn Error>> {
         &argv[5].parse::<f64>()?,
     );
 
+    let lorentz_line_shape = LineShape::new(0.04);
     let spec = Population::new(*temperature, *j_max, *origin, *rot_const);
-    let (sig_x, sig_y) = spec.calc_spectrum();
+    let (signal_raw_x, signal_raw_y) = spec.calc_spectrum();
 
-    out_csv(&sig_x, &sig_y, file_name)?;
+    let (x_signal, y_signal) = convolute_lorentz(
+        1000.0,
+        1400.0,
+        0.01,
+        &lorentz_line_shape,
+        (&signal_raw_x, &signal_raw_y),
+    );
+
+    out_csv(&x_signal, &y_signal, file_name)?;
 
     Ok(())
 }
