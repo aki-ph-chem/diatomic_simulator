@@ -10,6 +10,10 @@ name = "ex_diatomic_mw"
 path = "examples/ex_diatomic_mw.rs"
 
 [[example]]
+name = "ex_diatomic_electronic"
+path = "examples/ex_diatomic_electronic.rs"
+
+[[example]]
 name = "line_shape_lorentz"
 path = "examples/line_shape_lorentz.rs"
 
