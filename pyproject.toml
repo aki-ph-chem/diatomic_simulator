@@ -12,6 +12,7 @@ numpy = "^1.26.4"
 pandas = "^2.2.2"
 matplotlib = "^3.8.4"
 jupyterlab = "^4.1.8"
+jupyterlab-vim = "^4.1.3"
 
 
 [build-system]

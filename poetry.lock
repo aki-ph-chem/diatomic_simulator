@@ -1101,6 +1101,20 @@ openapi = ["openapi-core (>=0.18.0,<0.19.0)", "ruamel-yaml"]
 test = ["hatch", "ipykernel", "openapi-core (>=0.18.0,<0.19.0)", "openapi-spec-validator (>=0.6.0,<0.8.0)", "pytest (>=7.0,<8)", "pytest-console-scripts", "pytest-cov", "pytest-jupyter[server] (>=0.6.2)", "pytest-timeout", "requests-mock", "ruamel-yaml", "sphinxcontrib-spelling", "strict-rfc3339", "werkzeug"]
 
 [[package]]
+name = "jupyterlab-vim"
+version = "4.1.3"
+description = "Code cell vim bindings"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "jupyterlab_vim-4.1.3-py3-none-any.whl", hash = "sha256:a0c74c9697f42f42d030133f5b3aea092ef9c8dc7d8252afb91cdad951677131"},
+    {file = "jupyterlab_vim-4.1.3.tar.gz", hash = "sha256:57e1a0a4eddd2334e8d7a7c0df80f5097b78f5480ffa84307f2e508df98b6878"},
+]
+
+[package.dependencies]
+jupyterlab = ">=4.1.0,<5"
+
+[[package]]
 name = "kiwisolver"
 version = "1.4.5"
 description = "A fast implementation of the Cassowary constraint solver"
@@ -2576,4 +2590,4 @@ test = ["websockets"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "e404765158d18f770cf7ccefc39da45d849cff511dfeda4b6144dcefd88676e8"
+content-hash = "e8395741c3260d87934dc87ace6f31760f00fcfc60296de7cac1e3685b79f4db"
