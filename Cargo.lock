@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "diatomic_simulatro"
+name = "diatomic_simulator"
 version = "0.1.0"
