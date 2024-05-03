@@ -18,25 +18,30 @@ impl Population {
     }
 
     pub fn calc_spectrum(&self) -> (Vec<f64>, Vec<f64>) {
-        let mut signal_x = vec![0.0; self.j_max as usize + 1];
+        let mut signal_x = vec![];
+        let mut signal_y = vec![];
         let mut partition_func = 0.0;
 
         for j in 0..=self.j_max {
-            // j -> j + 1 only
-            signal_x[j as usize] = 2.0 * self.molecule.rot_const * (j as f64 + 1.0);
+            for delta_j in [-1, 0, 1] {
+                let (energy_1, energy_2) =
+                    (self.molecule.energy(j), self.molecule.energy(j + delta_j));
+                signal_x.push(energy_2 - energy_1 + self.band_origin);
+                signal_y.push(
+                    (j as f64 + 1.0) / (2.0 * j as f64 + 1.0)
+                        * ((-energy_1 / self.temperature).exp()
+                            - (-energy_2 / self.temperature).exp())
+                        .abs(),
+                );
+            }
+
             partition_func +=
                 (2.0 * j as f64 + 1.0) * (-self.molecule.energy(j) / self.temperature).exp();
         }
 
-        let signal_y = (0..=self.j_max)
-            .map(|j| {
-                (j as f64 + 1.0) / (2.0 * j as f64 + 1.0)
-                    * ((-self.molecule.energy(j) / self.temperature).exp()
-                        - (-self.molecule.energy(j + 1) / self.temperature).exp())
-                    .abs()
-                    / partition_func
-            })
-            .collect();
+        for intensity in signal_y.iter_mut() {
+            *intensity /= partition_func;
+        }
 
         (signal_x, signal_y)
     }

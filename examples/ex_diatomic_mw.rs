@@ -19,15 +19,22 @@ fn out_csv(x_data: &Vec<f64>, y_data: &Vec<f64>, path_to_file: &str) -> Result<(
 
 fn main() -> Result<(), Box<dyn Error>> {
     let argv = std::env::args().collect::<Vec<String>>();
-
-    if argv.len() < 2 {
+    if argv.len() < 6 {
         panic!("Error: invalid args");
     }
 
-    let spec = Population::new(300.0, 30, 0.0, 2.0);
+    let (file_name, temperature, j_max, origin, rot_const) = (
+        &argv[1],
+        &argv[2].parse::<f64>()?,
+        &argv[3].parse::<i32>()?,
+        &argv[4].parse::<f64>()?,
+        &argv[5].parse::<f64>()?,
+    );
+
+    let spec = Population::new(*temperature, *j_max, *origin, *rot_const);
     let (sig_x, sig_y) = spec.calc_spectrum();
 
-    out_csv(&sig_x, &sig_y, &argv[1])?;
+    out_csv(&sig_x, &sig_y, file_name)?;
 
     Ok(())
 }
