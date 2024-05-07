@@ -17,6 +17,10 @@ path = "examples/ex_diatomic_electronic.rs"
 name = "line_shape_lorentz"
 path = "examples/line_shape_lorentz.rs"
 
+[[example]]
+name = "line_shape_lorentz_2"
+path = "examples/line_shape_lorentz_2.rs"
+
 [[bin]]
 name = "ui_mw"
 path = "gui/ui_mw.rs"

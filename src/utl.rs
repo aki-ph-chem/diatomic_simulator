@@ -54,6 +54,37 @@ pub fn convolute_lorentz(
     (x_signal, y_signal)
 }
 
+pub fn convolute_lorentz_2(
+    x_ini: f64,
+    x_fin: f64,
+    x_step: f64,
+    limit_decay: f64,
+    line_profile: &LineShape,
+    raw_signal: (&Vec<f64>, &Vec<f64>),
+) -> (Vec<f64>, Vec<f64>) {
+    let len_signal = ((x_fin - x_ini) / x_step) as usize;
+    let x_signal = (0..len_signal)
+        .map(|x| x_ini + x as f64 * x_step)
+        .collect::<Vec<f64>>();
+    let mut y_signal = vec![0.0; len_signal];
+
+    for i in 0..raw_signal.0.len() {
+        let limit_r = (line_profile.width_lorentz / 2.0)
+            * (limit_decay - limit_decay.powi(2)).sqrt()
+            / limit_decay;
+        let (x_limit_lower, x_limit_upper) = (raw_signal.0[i] - limit_r, raw_signal.0[i] + limit_r);
+        for j in 0..x_signal.len() {
+            if x_signal[j] > x_limit_lower || x_signal[j] < x_limit_upper {
+                y_signal[j] += raw_signal.1[i] * line_profile.lorentz(x_signal[j], raw_signal.0[i]);
+            } else {
+                break;
+            }
+        }
+    }
+
+    (x_signal, y_signal)
+}
+
 pub fn out_csv(
     x_data: &Vec<f64>,
     y_data: &Vec<f64>,
