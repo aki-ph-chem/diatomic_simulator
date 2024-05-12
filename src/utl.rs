@@ -17,7 +17,7 @@ impl DiatomicMolecule {
 }
 
 pub struct LineShape {
-    width_lorentz: f64,
+    pub width_lorentz: f64,
 }
 
 impl LineShape {

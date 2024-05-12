@@ -106,13 +106,6 @@
               </object>
             </child>
             <child>
-              <object class="GtkMenuItem" id="const">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Const</property>
-              </object>
-            </child>
-            <child>
               <object class="GtkMenuItem" id="about">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
@@ -132,16 +125,11 @@
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <child>
-              <object class="GtkMenuBar">
+              <object class="GtkButton" id="button_redraw">
+                <property name="label" translatable="yes">Redraw</property>
                 <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <child>
-                  <object class="GtkMenuItem" id="redraw">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Redraw</property>
-                  </object>
-                </child>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -153,6 +141,7 @@
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="margin-left">3</property>
                 <property name="label" translatable="yes"> Temperature </property>
               </object>
               <packing>
@@ -204,6 +193,93 @@
           </packing>
         </child>
         <child>
+          <object class="GtkBox">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="margin-right">1</property>
+                <property name="margin-start">82</property>
+                <property name="label" translatable="yes">band origin</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="entry_band_origin">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="margin-start">14</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="margin-left">7</property>
+                <property name="label" translatable="yes">j_max</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="entry_j_max">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="margin-start">46</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="margin-left">5</property>
+                <property name="margin-right">3</property>
+                <property name="label" translatable="yes">rot_const</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">5</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="entry_rot_const">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">6</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
           <object class="GtkDrawingArea" id="plot_area">
             <property name="width-request">800</property>
             <property name="height-request">450</property>
@@ -213,7 +289,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="position">2</property>
+            <property name="position">3</property>
           </packing>
         </child>
       </object>

@@ -1,6 +1,56 @@
-extern crate gtk;
+use diatomic_simulator::{
+    microwave::Population,
+    utl::{convolute_lorentz, LineShape},
+};
+use gtk;
+use gtk::glib;
 use gtk::prelude::*;
+use plotters::prelude::*;
+use plotters_cairo::CairoBackend;
+use std::cell::RefCell;
 use std::error::Error;
+use std::rc::Rc;
+
+fn generate_entry(builder: &gtk::Builder, id: &str) -> gtk::Entry {
+    let error_message = format!("Error: {id}");
+    builder.object(id).expect(&error_message)
+}
+
+fn plot_spectrum(
+    backend: CairoBackend,
+    spectrum: Rc<RefCell<Population>>,
+    lorentz_line_shape: Rc<RefCell<LineShape>>,
+) -> Result<(), Box<dyn Error>> {
+    let root = backend.into_drawing_area();
+    root.fill(&WHITE)?;
+
+    let mut chart = ChartBuilder::on(&root)
+        .caption("Spectrum", ("snas-serif", 50).into_font())
+        .margin(5)
+        .build_cartesian_2d(1000.0..1400.0, 0.0..1.0)?;
+    chart.configure_mesh().draw()?;
+
+    let (signal_raw_x, signal_raw_y) = spectrum.borrow().calc_spectrum();
+    let (signal_x, signal_y) = convolute_lorentz(
+        1000.0,
+        1400.0,
+        0.01,
+        &lorentz_line_shape.borrow(),
+        (&signal_raw_x, &signal_raw_y),
+    );
+    chart.draw_series(LineSeries::new(
+        signal_x.iter().zip(signal_y.iter()).map(|(x, y)| (*x, *y)),
+        &RED,
+    ))?;
+    chart
+        .configure_series_labels()
+        .background_style(&WHITE.mix(0.8))
+        .border_style(&BLACK)
+        .draw()?;
+
+    root.present()?;
+    Ok(())
+}
 
 fn main() -> Result<(), Box<dyn Error>> {
     gtk::init()?;
@@ -11,7 +61,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let window: gtk::Window = builder.object("window").expect("Error: window");
     window.connect_delete_event(|_, _| {
         gtk::main_quit();
-        gtk::glib::Propagation::Stop
+        Inhibit(false)
     });
 
     // quit program by "Quit" button
@@ -31,9 +81,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         gtk::AccelFlags::VISIBLE,
     );
 
-    // const menu
-    let const_menu: gtk::MenuItem = builder.object("const").expect("Error: const");
-
     // generate About dialog by click "About" button
     let about: gtk::MenuItem = builder.object("about").expect("Error: about");
     let about_dialog: gtk::AboutDialog =
@@ -45,6 +92,46 @@ fn main() -> Result<(), Box<dyn Error>> {
         about_dialog.set_transient_for(Some(&window_));
         about_dialog.run();
         about_dialog.hide();
+    });
+
+    // init state
+    let spectrum = Rc::new(RefCell::new(Population::new(300.0, 60, 1200.0, 2.0)));
+    let lorentz_line_shape = Rc::new(RefCell::new(LineShape::new(0.004)));
+    // init entrys
+    let (entry_temperature, entry_lorentz_width, entry_band_origin, entry_j_max, entry_rot_const) = (
+        generate_entry(&builder, "entry_temperature"),
+        generate_entry(&builder, "entry_lorentz_width"),
+        generate_entry(&builder, "entry_band_origin"),
+        generate_entry(&builder, "entry_j_max"),
+        generate_entry(&builder, "entry_rot_const"),
+    );
+    entry_temperature.set_text(&spectrum.borrow().temperature.to_string());
+    entry_band_origin.set_text(&spectrum.borrow().band_origin.to_string());
+    entry_lorentz_width.set_text(&lorentz_line_shape.borrow().width_lorentz.to_string());
+    entry_j_max.set_text(&spectrum.borrow().j_max.to_string());
+    entry_rot_const.set_text(&spectrum.borrow().rot_const().to_string());
+
+    // init redraw button
+    let button_redraw: gtk::Button = builder
+        .object("button_redraw")
+        .expect("Error: button_redraw");
+    // init plot area
+    let plot_area: gtk::DrawingArea = builder.object("plot_area").expect("Error: plot_area");
+    let (spectrum_clone, lorentz_line_shape_clone) = (spectrum.clone(), lorentz_line_shape.clone());
+    plot_area.connect_draw(move |widget, cr| {
+        let (width, height) = (
+            widget.allocated_width() as u32,
+            widget.allocated_height() as u32,
+        );
+        let back_end = CairoBackend::new(cr, (width, height)).expect("Error: init backend");
+        plot_spectrum(
+            back_end,
+            spectrum_clone.clone(),
+            lorentz_line_shape_clone.clone(),
+        )
+        .expect("Error: plot_spectrum");
+
+        Inhibit(false)
     });
 
     // show window & enter event loop
