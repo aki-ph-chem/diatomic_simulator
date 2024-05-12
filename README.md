@@ -1,5 +1,7 @@
 # Diatomic Simulator
 
+## for microwave spctrum
+
 now: 2024 05/12
 
 <img align="left" src="./figure/plot_spectrum_0.svg" height="600" width="1000"/>
@@ -13,12 +15,46 @@ now: 2024 05/13
 This program simulates the rotational spectrum of diatomic molecules using Rust. 
 It utilizes quantum mechanical principles to calculate the energy levels and corresponding spectral lines of the molecule under consideration.
 
+## build
+
+To build "ui_mw"
+
+```bash
+$ cargo build --bin ui_mw
+```
+
+To build [examples](./examples)
+
+```bash
+$ cargo build --example <target name> 
+```
+and visualize the result of exmples by jupyter lab
+
+1. init Python environment
+
+```bash
+$ poetry install
+```
+
+2. start jupyter lab
+
+```bash
+$ poetry run jupyter lab
+```
 ## Progress
 
-- now: 
-    - logic part(calculation of the spectrum from rotational constant and other parameters)
-    - GUI part(plot by default paremeter) 
-- upcomming: GUI part(It is implemented by GTK+ toolkit.) 
+### Current Support
+
+- Currently,only x86_64 GNU/Linux is supported.
+
+### now: 
+
+- for maicrowave spectrum
+    - logic part: Spectrum calculation based on rotational constants and other parameters.
+    - GUI part: Interactive plot. 
+
+- for electronic spectrum
+    - logic part: Spectrum calculation based on rotational constants and other parameters.
 
 ## Features
 
@@ -28,4 +64,4 @@ It utilizes quantum mechanical principles to calculate the energy levels and cor
 
 ## License
 
-This project is licensed under the GNU LESSER GENERAL PUBLIC LICENSE - see the LICENSE file for details.
+This project is licensed under the GNU Lesser General Public License v3.0 - see the LICENSE file for details.
