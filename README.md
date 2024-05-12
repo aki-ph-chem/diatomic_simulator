@@ -7,8 +7,13 @@ It utilizes quantum mechanical principles to calculate the energy levels and cor
 
 ## Progress
 
-- now: logic part(calculation of the spectrum from rotational constant and other parameters)
+- now: 
+    - logic part(calculation of the spectrum from rotational constant and other parameters)
+    - GUI part(plot by default paremeter) 
 - upcomming: GUI part(It is implemented by GTK+ toolkit.) 
+
+now: 2024 05/12
+<img align="left" src="./figure/plot_spectrum_0.svg" height="600" width="900"/>
 
 ## Features
 
