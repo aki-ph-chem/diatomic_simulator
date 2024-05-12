@@ -31,13 +31,23 @@ fn plot_spectrum(
     chart.configure_mesh().draw()?;
 
     let (signal_raw_x, signal_raw_y) = spectrum.borrow().calc_spectrum();
-    let (signal_x, signal_y) = convolute_lorentz(
+    let (signal_x, mut signal_y) = convolute_lorentz(
         1000.0,
         1400.0,
         0.01,
         &lorentz_line_shape.borrow(),
         (&signal_raw_x, &signal_raw_y),
     );
+
+    // normalize spectrum
+    let mut max_signal_y = 0.0_f64;
+    for v in &signal_y {
+        max_signal_y = max_signal_y.max(*v);
+    }
+    for v in &mut signal_y {
+        *v /= max_signal_y;
+    }
+
     chart.draw_series(LineSeries::new(
         signal_x.iter().zip(signal_y.iter()).map(|(x, y)| (*x, *y)),
         &RED,
@@ -95,7 +105,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     });
 
     // init state
-    let spectrum = Rc::new(RefCell::new(Population::new(300.0, 60, 1200.0, 2.0)));
+    let spectrum = Rc::new(RefCell::new(Population::new(300.0, 30, 1200.0, 2.0)));
     let lorentz_line_shape = Rc::new(RefCell::new(LineShape::new(0.004)));
     // init entrys
     let (entry_temperature, entry_lorentz_width, entry_band_origin, entry_j_max, entry_rot_const) = (
@@ -105,6 +115,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         generate_entry(&builder, "entry_j_max"),
         generate_entry(&builder, "entry_rot_const"),
     );
+    // set default value
     entry_temperature.set_text(&spectrum.borrow().temperature.to_string());
     entry_band_origin.set_text(&spectrum.borrow().band_origin.to_string());
     entry_lorentz_width.set_text(&lorentz_line_shape.borrow().width_lorentz.to_string());
@@ -117,6 +128,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         .expect("Error: button_redraw");
     // init plot area
     let plot_area: gtk::DrawingArea = builder.object("plot_area").expect("Error: plot_area");
+
+    // initial plot
     let (spectrum_clone, lorentz_line_shape_clone) = (spectrum.clone(), lorentz_line_shape.clone());
     plot_area.connect_draw(move |widget, cr| {
         let (width, height) = (
@@ -133,6 +146,69 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         Inhibit(false)
     });
+
+    // redraw by changed temperature, bnad_origin, rot_const
+    let handle_parameters_update =
+        |control: &gtk::Entry, action: Box<dyn Fn(&mut Population) -> &mut f64 + 'static>| {
+            button_redraw.connect_clicked(
+                glib::clone!(@weak control, @weak plot_area, @weak spectrum => move |_| {
+                let mut state = spectrum.borrow_mut();
+                match control.text().parse::<f64>() {
+                    Ok(value) => {
+                        *action(&mut *state) = value;
+                        plot_area.queue_draw();
+                    },
+                    Err(error) => {
+                        eprintln!("Error: {}", error);
+                    }
+                }
+                }),
+            );
+        };
+    handle_parameters_update(&entry_temperature, Box::new(|spr| &mut spr.temperature));
+    handle_parameters_update(&entry_band_origin, Box::new(|spr| &mut spr.band_origin));
+    handle_parameters_update(&entry_rot_const, Box::new(|spr| spr.rot_const_ref()));
+
+    let handle_j_max_update =
+        |control: &gtk::Entry, action: Box<dyn Fn(&mut Population) -> &mut i32 + 'static>| {
+            button_redraw.connect_clicked(
+                glib::clone!(@weak control, @weak plot_area, @weak spectrum => move |_| {
+                let mut state = spectrum.borrow_mut();
+                match control.text().parse::<i32>() {
+                    Ok(value) => {
+                        *action(&mut *state) = value;
+                        plot_area.queue_draw();
+                    },
+                    Err(error) => {
+                        eprintln!("Error: {}", error);
+                    }
+                }
+                }),
+            );
+        };
+    handle_j_max_update(&entry_j_max, Box::new(|spr| &mut spr.j_max));
+
+    let handle_width_update =
+        |control: &gtk::Entry, action: Box<dyn Fn(&mut LineShape) -> &mut f64 + 'static>| {
+            button_redraw.connect_clicked(
+                glib::clone!(@weak control, @weak plot_area, @weak lorentz_line_shape  => move |_| {
+                let mut state = lorentz_line_shape.borrow_mut();
+                match control.text().parse::<f64>() {
+                    Ok(value) => {
+                        *action(&mut *state) = value;
+                        plot_area.queue_draw();
+                    },
+                    Err(error) => {
+                        eprintln!("Error: {}", error);
+                    }
+                }
+                }),
+            );
+        };
+    handle_width_update(
+        &entry_lorentz_width,
+        Box::new(|line_shape| &mut line_shape.width_lorentz),
+    );
 
     // show window & enter event loop
     window.show_all();

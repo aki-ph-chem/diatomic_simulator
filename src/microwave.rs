@@ -21,6 +21,10 @@ impl Population {
         self.molecule.rot_const
     }
 
+    pub fn rot_const_ref(&mut self) -> &mut f64 {
+        &mut self.molecule.rot_const
+    }
+
     pub fn calc_spectrum(&self) -> (Vec<f64>, Vec<f64>) {
         let mut signal_x = vec![];
         let mut signal_y = vec![];
