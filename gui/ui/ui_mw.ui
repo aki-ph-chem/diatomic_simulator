@@ -201,7 +201,7 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="margin-right">1</property>
-                <property name="margin-start">82</property>
+                <property name="margin-start">1</property>
                 <property name="label" translatable="yes">band origin</property>
               </object>
               <packing>
@@ -226,7 +226,7 @@
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="margin-left">7</property>
+                <property name="margin-left">6</property>
                 <property name="label" translatable="yes">j_max</property>
               </object>
               <packing>
@@ -239,7 +239,7 @@
               <object class="GtkEntry" id="entry_j_max">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
-                <property name="margin-start">46</property>
+                <property name="margin-start">8</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -280,6 +280,69 @@
           </packing>
         </child>
         <child>
+          <object class="GtkBox">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="margin-right">27</property>
+                <property name="margin-start">1</property>
+                <property name="label" translatable="yes">x_min</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="entry_x_min">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="margin-start">15</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="margin-left">6</property>
+                <property name="margin-right">3</property>
+                <property name="label" translatable="yes">x_max</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="entry_x_max">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="margin-start">4</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">3</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">3</property>
+          </packing>
+        </child>
+        <child>
           <object class="GtkDrawingArea" id="plot_area">
             <property name="width-request">800</property>
             <property name="height-request">450</property>
@@ -289,7 +352,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="position">3</property>
+            <property name="position">4</property>
           </packing>
         </child>
       </object>
