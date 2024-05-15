@@ -3,11 +3,9 @@
 ## for microwave spctrum
 
 now: 2024 05/12
-
 <img align="left" src="./figure/plot_spectrum_0.svg" height="600" width="1000"/>
 
 now: 2024 05/13
-
 <img align="left" src="./figure/plot_spectrum_1.svg" height="600" width="1000"/>
 
 ## Description
@@ -16,6 +14,10 @@ This program simulates the rotational spectrum of diatomic molecules using Rust.
 It utilizes quantum mechanical principles to calculate the energy levels and corresponding spectral lines of the molecule under consideration.
 
 ## build
+
+- dependency
+    - Ubuntu/Debian: libgtk-3-0, libgtk-3-dev
+    - Arch Linux: gtk3
 
 To build "ui_mw"
 
@@ -45,7 +47,12 @@ $ poetry run jupyter lab
 
 ### Current Support
 
-- Currently,only x86_64 GNU/Linux is supported.
+- dependency    
+    - Debiain/Ubuntu libgtk-3-0
+    - Arch Linux gtk3
+
+- x86_64 GNU/Linux
+- WSL2 (need WSLg for GUI)
 
 ### now: 
 
