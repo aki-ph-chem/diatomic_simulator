@@ -1,6 +1,14 @@
 # Diatomic Simulator
 
-## for microwave spctrum
+This program simulates the rotational spectrum of diatomic molecules using Rust. 
+It utilizes quantum mechanical principles to calculate the energy levels and corresponding spectral lines of the molecule under consideration.
+
+### Current Support
+
+- x86_64 GNU/Linux
+- WSL2 (need WSLg for GUI)
+
+## 📡 for microwave spctrum
 
 now: 2024 05/12
 <img align="left" src="./figure/plot_spectrum_0.svg" height="600" width="1000"/>
@@ -8,15 +16,32 @@ now: 2024 05/12
 now: 2024 05/13
 <img align="left" src="./figure/plot_spectrum_1.svg" height="600" width="1000"/>
 
-## Description
+## get & try
 
-This program simulates the rotational spectrum of diatomic molecules using Rust. 
-It utilizes quantum mechanical principles to calculate the energy levels and corresponding spectral lines of the molecule under consideration.
+1. install dependency 
 
-## build
+- for Debian/Ubuntu: libgtk-3-0
+
+```bash
+$ sudo apt install libgtk-3-0
+```
+
+- for Arch Linux: gtk3 
+
+```bash
+$ sudo pacman -S gtk3 
+```
+
+2. Download binary from [release](https://github.com/aki-ph-chem/diatomic_simulator/releases) and exec it from shell.
+
+```bash
+$ ./ui_mw
+```
+
+## 🔨 build
 
 - dependency
-    - Ubuntu/Debian: libgtk-3-0, libgtk-3-dev
+    - Ubuntu/Debian: libgtk-3-dev
     - Arch Linux: gtk3
 
 To build "ui_mw"
@@ -43,16 +68,14 @@ $ poetry install
 ```bash
 $ poetry run jupyter lab
 ```
+
+## 🎁 Features
+
+- Calculates rotational energy levels
+- Generates rotational spectrum
+- Allows customization of molecule parameters (rotational constant, rotational temperature, band origin)
+
 ## Progress
-
-### Current Support
-
-- dependency    
-    - Debiain/Ubuntu libgtk-3-0
-    - Arch Linux gtk3
-
-- x86_64 GNU/Linux
-- WSL2 (need WSLg for GUI)
 
 ### now: 
 
@@ -62,12 +85,6 @@ $ poetry run jupyter lab
 
 - for electronic spectrum
     - logic part: Spectrum calculation based on rotational constants and other parameters.
-
-## Features
-
-- Calculates rotational energy levels
-- Generates rotational spectrum
-- Allows customization of molecule parameters (rotational constant, rotational temperature, band origin)
 
 ## License
 
