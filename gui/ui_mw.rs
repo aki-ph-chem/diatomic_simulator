@@ -36,6 +36,7 @@ fn plot_spectrum(
     lorentz_line_shape: Rc<RefCell<LineShape>>,
     plot_range: Rc<RefCell<PlotRange>>,
 ) -> Result<(), Box<dyn Error>> {
+    println!("runing draw");
     let root = backend.into_drawing_area();
     root.fill(&WHITE)?;
 
@@ -126,7 +127,6 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // init state
     let spectrum = Rc::new(RefCell::new(Population::new(300.0, 30.0, 1200.0, 2.0)));
-    let spectrum_prev = Rc::new(RefCell::new(Population::new(300.0, 30.0, 1200.0, 2.0)));
     let lorentz_line_shape = Rc::new(RefCell::new(LineShape::new(0.004)));
     let lorentz_line_shape_prev = Rc::new(RefCell::new(LineShape::new(0.004)));
     let plot_range = Rc::new(RefCell::new(PlotRange::new(1000.0, 1400.0)));
@@ -208,74 +208,33 @@ fn main() -> Result<(), Box<dyn Error>> {
         Inhibit(false)
     });
 
-    // redraw by changed temperature, bnad_origin, rot_const
-    let handle_parameters_update =
-        |control: &gtk::Entry,
-         entry_name: &'static str,
-         action: Box<dyn Fn(&mut Population) -> &mut f64 + 'static>| {
-            button_redraw.connect_clicked(
-                glib::clone!(@weak control, @weak plot_area, @weak spectrum, @weak spectrum_prev => move |_| {
+    let handle_parameters_update = |controls: [(&gtk::Entry, &'static str); 4]| {
+        for (control, control_name) in controls {
+            button_redraw.connect_clicked(glib::clone!(@weak control, @weak spectrum  => move |_|{
                 let mut state = spectrum.borrow_mut();
-                let mut state_prev = spectrum_prev.borrow_mut();
                 match control.text().parse::<f64>() {
                     Ok(value) => {
-                        let value_prev = match entry_name {
-                            "entry_temperature" => state_prev.temperature,
-                            "entry_band_origin" => state_prev.band_origin,
-                            "entry_j_max" => state_prev.j_max,
-                            _ => state_prev.rot_const(),
-                        };
-                        if (value_prev - value).abs() > 1e-10 {
-                            *action(&mut *state) = value;
-                            match entry_name {
-                                "entry_temperature" => {state_prev.temperature = value;},
-                                "entry_band_origin" => {state_prev.band_origin = value;},
-                                "entry_j_max" => {state_prev.j_max = value;},
-                                _ => {*state_prev.rot_const_ref() = value;},
-                            }
-                            println!("runing redraw");
-                            plot_area.queue_draw();
+                        match control_name {
+                            "entry_temperature" => {state.temperature = value;},
+                            "entry_band_origin" => {state.band_origin = value;},
+                            "entry_j_max" => {state.j_max = value;},
+                            _ => {*state.rot_const_ref() = value;},
                         }
+                        println!("update {control_name}");
                     },
                     Err(error) => {
-                        eprintln!("Error: {}", error);
+                        eprintln!("Error: {error}");
                     }
                 }
-                }),
-            );
-        };
-    handle_parameters_update(
-        &entry_temperature,
-        "entry_temperature",
-        Box::new(|spr| {
-            println!("update temperature");
-            &mut spr.temperature
-        }),
-    );
-    handle_parameters_update(
-        &entry_band_origin,
-        "entry_band_origin",
-        Box::new(|spr| {
-            println!("update band_origin");
-            &mut spr.band_origin
-        }),
-    );
-    handle_parameters_update(
-        &entry_rot_const,
-        "entry_rot_const",
-        Box::new(|spr| {
-            println!("update rot_const");
-            spr.rot_const_ref()
-        }),
-    );
-    handle_parameters_update(
-        &entry_j_max,
-        "entry_j_max",
-        Box::new(|spr| {
-            println!("update entry_j_max");
-            &mut spr.j_max
-        }),
-    );
+            }));
+        }
+    };
+    handle_parameters_update([
+        (&entry_temperature, "entry_temperature"),
+        (&entry_band_origin, "entry_band_origin"),
+        (&entry_j_max, "entry_j_max"),
+        (&entry_rot_const, "entry_rot_const"),
+    ]);
 
     let handle_width_update =
         |control: &gtk::Entry, action: Box<dyn Fn(&mut LineShape) -> &mut f64 + 'static>| {
@@ -288,8 +247,6 @@ fn main() -> Result<(), Box<dyn Error>> {
                         if (state_prev.width_lorentz - value).abs() > 1e-10 {
                             *action(&mut *state) = value;
                             state_prev.width_lorentz = value;
-                            println!("runing redraw");
-                            plot_area.queue_draw();
                         }
                     },
                     Err(error) => {
@@ -327,8 +284,6 @@ fn main() -> Result<(), Box<dyn Error>> {
                                 "entry_x_min" => {state_prev.x_min = value;},
                                 _ => {state_prev.x_max = value;},
                             }
-                            println!("runing redraw");
-                            plot_area.queue_draw();
                         }
                     },
                     Err(error) => {
