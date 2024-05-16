@@ -126,8 +126,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // init state
     let spectrum = Rc::new(RefCell::new(Population::new(300.0, 30.0, 1200.0, 2.0)));
+    let spectrum_prev = Rc::new(RefCell::new(Population::new(300.0, 30.0, 1200.0, 2.0)));
     let lorentz_line_shape = Rc::new(RefCell::new(LineShape::new(0.004)));
+    let lorentz_line_shape_prev = Rc::new(RefCell::new(LineShape::new(0.004)));
     let plot_range = Rc::new(RefCell::new(PlotRange::new(1000.0, 1400.0)));
+    let plot_range_prev = Rc::new(RefCell::new(PlotRange::new(1000.0, 1400.0)));
     // init entrys
     let (
         entry_temperature,
@@ -207,14 +210,32 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // redraw by changed temperature, bnad_origin, rot_const
     let handle_parameters_update =
-        |control: &gtk::Entry, action: Box<dyn Fn(&mut Population) -> &mut f64 + 'static>| {
+        |control: &gtk::Entry,
+         entry_name: &'static str,
+         action: Box<dyn Fn(&mut Population) -> &mut f64 + 'static>| {
             button_redraw.connect_clicked(
-                glib::clone!(@weak control, @weak plot_area, @weak spectrum => move |_| {
+                glib::clone!(@weak control, @weak plot_area, @weak spectrum, @weak spectrum_prev => move |_| {
                 let mut state = spectrum.borrow_mut();
+                let mut state_prev = spectrum_prev.borrow_mut();
                 match control.text().parse::<f64>() {
                     Ok(value) => {
-                        *action(&mut *state) = value;
-                        plot_area.queue_draw();
+                        let value_prev = match entry_name {
+                            "entry_temperature" => state_prev.temperature,
+                            "entry_band_origin" => state_prev.band_origin,
+                            "entry_j_max" => state_prev.j_max,
+                            _ => state_prev.rot_const(),
+                        };
+                        if (value_prev - value).abs() > 1e-10 {
+                            *action(&mut *state) = value;
+                            match entry_name {
+                                "entry_temperature" => {state_prev.temperature = value;},
+                                "entry_band_origin" => {state_prev.band_origin = value;},
+                                "entry_j_max" => {state_prev.j_max = value;},
+                                _ => {*state_prev.rot_const_ref() = value;},
+                            }
+                            println!("runing redraw");
+                            plot_area.queue_draw();
+                        }
                     },
                     Err(error) => {
                         eprintln!("Error: {}", error);
@@ -223,20 +244,53 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }),
             );
         };
-    handle_parameters_update(&entry_temperature, Box::new(|spr| &mut spr.temperature));
-    handle_parameters_update(&entry_band_origin, Box::new(|spr| &mut spr.band_origin));
-    handle_parameters_update(&entry_rot_const, Box::new(|spr| spr.rot_const_ref()));
-    handle_parameters_update(&entry_j_max, Box::new(|spr| &mut spr.j_max));
+    handle_parameters_update(
+        &entry_temperature,
+        "entry_temperature",
+        Box::new(|spr| {
+            println!("update temperature");
+            &mut spr.temperature
+        }),
+    );
+    handle_parameters_update(
+        &entry_band_origin,
+        "entry_band_origin",
+        Box::new(|spr| {
+            println!("update band_origin");
+            &mut spr.band_origin
+        }),
+    );
+    handle_parameters_update(
+        &entry_rot_const,
+        "entry_rot_const",
+        Box::new(|spr| {
+            println!("update rot_const");
+            spr.rot_const_ref()
+        }),
+    );
+    handle_parameters_update(
+        &entry_j_max,
+        "entry_j_max",
+        Box::new(|spr| {
+            println!("update entry_j_max");
+            &mut spr.j_max
+        }),
+    );
 
     let handle_width_update =
         |control: &gtk::Entry, action: Box<dyn Fn(&mut LineShape) -> &mut f64 + 'static>| {
             button_redraw.connect_clicked(
-                glib::clone!(@weak control, @weak plot_area, @weak lorentz_line_shape  => move |_| {
+                glib::clone!(@weak control, @weak plot_area, @weak lorentz_line_shape, @weak lorentz_line_shape_prev  => move |_| {
                 let mut state = lorentz_line_shape.borrow_mut();
+                let mut state_prev = lorentz_line_shape_prev.borrow_mut();
                 match control.text().parse::<f64>() {
                     Ok(value) => {
-                        *action(&mut *state) = value;
-                        plot_area.queue_draw();
+                        if (state_prev.width_lorentz - value).abs() > 1e-10 {
+                            *action(&mut *state) = value;
+                            state_prev.width_lorentz = value;
+                            println!("runing redraw");
+                            plot_area.queue_draw();
+                        }
                     },
                     Err(error) => {
                         eprintln!("Error: {}", error);
@@ -247,18 +301,35 @@ fn main() -> Result<(), Box<dyn Error>> {
         };
     handle_width_update(
         &entry_lorentz_width,
-        Box::new(|line_shape| &mut line_shape.width_lorentz),
+        Box::new(|line_shape| {
+            println!("update lorentz width");
+            &mut line_shape.width_lorentz
+        }),
     );
 
     let handle_plot_range_update =
-        |control: &gtk::Entry, action: Box<dyn Fn(&mut PlotRange) -> &mut f64 + 'static>| {
+        |control: &gtk::Entry,
+         entry_name: &'static str,
+         action: Box<dyn Fn(&mut PlotRange) -> &mut f64 + 'static>| {
             button_redraw.connect_clicked(
-                glib::clone!(@weak control, @weak plot_area, @weak plot_range  => move |_| {
+                glib::clone!(@weak control, @weak plot_area, @weak plot_range, @weak plot_range_prev  => move |_| {
                 let mut state = plot_range.borrow_mut();
+                let mut state_prev = plot_range_prev.borrow_mut();
                 match control.text().parse::<f64>() {
                     Ok(value) => {
-                        *action(&mut *state) = value;
-                        plot_area.queue_draw();
+                        let value_prev = match entry_name {
+                            "entry_x_min" => state_prev.x_min,
+                            _ => state_prev.x_max,
+                        };
+                        if (value - value_prev).abs() > 1e-10 {
+                            *action(&mut *state) = value;
+                            match entry_name {
+                                "entry_x_min" => {state_prev.x_min = value;},
+                                _ => {state_prev.x_max = value;},
+                            }
+                            println!("runing redraw");
+                            plot_area.queue_draw();
+                        }
                     },
                     Err(error) => {
                         eprintln!("Error: {}", error);
@@ -267,8 +338,22 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }),
             );
         };
-    handle_plot_range_update(&entry_x_min, Box::new(|range| &mut range.x_min));
-    handle_plot_range_update(&entry_x_max, Box::new(|range| &mut range.x_max));
+    handle_plot_range_update(
+        &entry_x_min,
+        "entry_x_min",
+        Box::new(|range| {
+            println!("update x_min");
+            &mut range.x_min
+        }),
+    );
+    handle_plot_range_update(
+        &entry_x_max,
+        "entry_x_max",
+        Box::new(|range| {
+            println!("update x_max");
+            &mut range.x_max
+        }),
+    );
 
     // show window & enter event loop
     window.show_all();
