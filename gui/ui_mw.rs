@@ -22,9 +22,12 @@ impl PlotRange {
     }
 }
 
-fn generate_entry(builder: &gtk::Builder, id: &str) -> gtk::Entry {
+fn generate_entry(builder: &gtk::Builder, id: &str, initial_value: &str) -> gtk::Entry {
     let error_message = format!("Error: {id}");
-    builder.object(id).expect(&error_message)
+    let entry: gtk::Entry = builder.object(id).expect(&error_message);
+    entry.set_text(initial_value);
+
+    entry
 }
 
 fn plot_spectrum(
@@ -135,22 +138,42 @@ fn main() -> Result<(), Box<dyn Error>> {
         entry_x_min,
         entry_x_max,
     ) = (
-        generate_entry(&builder, "entry_temperature"),
-        generate_entry(&builder, "entry_lorentz_width"),
-        generate_entry(&builder, "entry_band_origin"),
-        generate_entry(&builder, "entry_j_max"),
-        generate_entry(&builder, "entry_rot_const"),
-        generate_entry(&builder, "entry_x_min"),
-        generate_entry(&builder, "entry_x_max"),
+        generate_entry(
+            &builder,
+            "entry_temperature",
+            &spectrum.borrow().temperature.to_string(),
+        ),
+        generate_entry(
+            &builder,
+            "entry_lorentz_width",
+            &lorentz_line_shape.borrow().width_lorentz.to_string(),
+        ),
+        generate_entry(
+            &builder,
+            "entry_band_origin",
+            &spectrum.borrow().band_origin.to_string(),
+        ),
+        generate_entry(
+            &builder,
+            "entry_j_max",
+            &spectrum.borrow().j_max.to_string(),
+        ),
+        generate_entry(
+            &builder,
+            "entry_rot_const",
+            &spectrum.borrow().rot_const().to_string(),
+        ),
+        generate_entry(
+            &builder,
+            "entry_x_min",
+            &plot_range.borrow().x_min.to_string(),
+        ),
+        generate_entry(
+            &builder,
+            "entry_x_max",
+            &plot_range.borrow().x_max.to_string(),
+        ),
     );
-    // set default value
-    entry_temperature.set_text(&spectrum.borrow().temperature.to_string());
-    entry_band_origin.set_text(&spectrum.borrow().band_origin.to_string());
-    entry_lorentz_width.set_text(&lorentz_line_shape.borrow().width_lorentz.to_string());
-    entry_j_max.set_text(&spectrum.borrow().j_max.to_string());
-    entry_rot_const.set_text(&spectrum.borrow().rot_const().to_string());
-    entry_x_min.set_text(&plot_range.borrow().x_min.to_string());
-    entry_x_max.set_text(&plot_range.borrow().x_max.to_string());
 
     // init redraw button
     let button_redraw: gtk::Button = builder
