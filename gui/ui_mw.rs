@@ -125,7 +125,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     });
 
     // init state
-    let spectrum = Rc::new(RefCell::new(Population::new(300.0, 30, 1200.0, 2.0)));
+    let spectrum = Rc::new(RefCell::new(Population::new(300.0, 30.0, 1200.0, 2.0)));
     let lorentz_line_shape = Rc::new(RefCell::new(LineShape::new(0.004)));
     let plot_range = Rc::new(RefCell::new(PlotRange::new(1000.0, 1400.0)));
     // init entrys
@@ -226,25 +226,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     handle_parameters_update(&entry_temperature, Box::new(|spr| &mut spr.temperature));
     handle_parameters_update(&entry_band_origin, Box::new(|spr| &mut spr.band_origin));
     handle_parameters_update(&entry_rot_const, Box::new(|spr| spr.rot_const_ref()));
-
-    let handle_j_max_update =
-        |control: &gtk::Entry, action: Box<dyn Fn(&mut Population) -> &mut i32 + 'static>| {
-            button_redraw.connect_clicked(
-                glib::clone!(@weak control, @weak plot_area, @weak spectrum => move |_| {
-                let mut state = spectrum.borrow_mut();
-                match control.text().parse::<i32>() {
-                    Ok(value) => {
-                        *action(&mut *state) = value;
-                        plot_area.queue_draw();
-                    },
-                    Err(error) => {
-                        eprintln!("Error: {}", error);
-                    }
-                }
-                }),
-            );
-        };
-    handle_j_max_update(&entry_j_max, Box::new(|spr| &mut spr.j_max));
+    handle_parameters_update(&entry_j_max, Box::new(|spr| &mut spr.j_max));
 
     let handle_width_update =
         |control: &gtk::Entry, action: Box<dyn Fn(&mut LineShape) -> &mut f64 + 'static>| {

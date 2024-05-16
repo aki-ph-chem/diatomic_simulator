@@ -11,7 +11,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let (file_name, temperature, j_max, band_origin, rot_const_ground, rot_const_excited) = (
         &argv[1],
         &argv[2].parse::<f64>()?,
-        &argv[3].parse::<i32>()?,
+        &argv[3].parse::<f64>()?,
         &argv[4].parse::<f64>()?,
         &argv[5].parse::<f64>()?,
         &argv[6].parse::<f64>()?,

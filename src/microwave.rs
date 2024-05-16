@@ -2,13 +2,13 @@ use crate::utl::DiatomicMolecule;
 
 pub struct Population {
     pub temperature: f64,
-    pub j_max: i32,
+    pub j_max: f64,
     pub band_origin: f64,
     molecule: DiatomicMolecule,
 }
 
 impl Population {
-    pub fn new(temperature: f64, j_max: i32, band_origin: f64, rot_const: f64) -> Self {
+    pub fn new(temperature: f64, j_max: f64, band_origin: f64, rot_const: f64) -> Self {
         Self {
             temperature,
             j_max,
@@ -30,7 +30,8 @@ impl Population {
         let mut signal_y = vec![];
         let mut partition_func = 0.0;
 
-        for j in 0..=self.j_max {
+        let j_max = self.j_max as i32;
+        for j in 0..=j_max {
             for delta_j in [-1, 0, 1] {
                 let (energy_1, energy_2) =
                     (self.molecule.energy(j), self.molecule.energy(j + delta_j));
